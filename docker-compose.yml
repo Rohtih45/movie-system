@@ -41,9 +41,9 @@ services:
   payment-service:
     image: payment-service
     container_name: payment-service
-    build: ./Booking-Service
+    build: ./payment-service
     depends_on:
       paymentsdb:
         condition: service_healthy
     ports:
-      - '9090:9090'
+      - '9091:9090'
