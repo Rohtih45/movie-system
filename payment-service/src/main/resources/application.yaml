@@ -4,9 +4,9 @@ spring:
   application:
     name: payment-service
   datasource:
-    url: jdbc:mysql://paymentsdb:3306/payments?createDatabaseIfNotExist=true
-    username: root
-    password: root
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:3306/payments?createDatabaseIfNotExist=true
+    username: ${MYSQL_USERNAME:root}
+    password: ${MYSQL_PASSWORD:root}
   jpa:
     show-sql: true
     hibernate:

@@ -4,9 +4,9 @@ spring:
   application:
     name: Booking-Service
   datasource:
-    url: jdbc:mysql://bookingsdb:3306/bookings?createDatabaseIfNotExist=true
-    username: root
-    password: root
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:3306/bookings?createDatabaseIfNotExist=true
+    username: ${MYSQL_USERNAME:root}
+    password: ${MYSQL_PASSWORD:roor}
   jpa:
     show-sql: true
     hibernate:
