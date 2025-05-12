@@ -1,10 +1,10 @@
 server:
-  port: 9091
+  port: ${SERVER_PORT:9091}
 spring:
   application:
     name: payment-service
   datasource:
-    url: jdbc:mysql://${MYSQL_HOST:localhost}:3306/payments?createDatabaseIfNotExist=true
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3307}/${MYSQL_DB:payments}?createDatabaseIfNotExist=true
     username: ${MYSQL_USERNAME:root}
     password: ${MYSQL_PASSWORD:root}
   jpa:
