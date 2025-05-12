@@ -16,7 +16,7 @@ services:
       retries: 5
       start_period: 10s
     volumes:
-      - bookings-data: /var/lib/mysql
+      - bookings-data:/var/lib/mysql
   paymentsdb:
     image: mysql
     container_name: paymentsdb
@@ -32,13 +32,13 @@ services:
       retries: 5
       start_period: 10s
     volumes:
-      - payments-data: /var/lib/mysql
+      - payments-data:/var/lib/mysql
   booking-service:
     image: booking-service
     container_name: booking-service
     build: ./Booking-Service
     environment:
-      MYSQL_HOST: mysqldb
+      MYSQL_HOST: bookingsdb
       MYSQL_USER: root
       MYSQL_PASSWORD: root
       MYSQL_DB: bookings
@@ -52,7 +52,7 @@ services:
     container_name: payment-service
     build: ./payment-service
     environment:
-      MYSQL_HOST: mysqldb
+      MYSQL_HOST: paymentsdb
       MYSQL_USER: root
       MYSQL_PASSWORD: root
       MYSQL_DB: payments
