@@ -4,10 +4,7 @@ import com.movie.ticket.services.BookingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.movie.ticket.dto.BookingDTO;
 
@@ -28,6 +25,11 @@ public class BookingAPI {
 		log.info("Requested  Booking Details Entered: {} ",bookingDTO.toString());
 		BookingDTO bookingDTO1= bookingService.createBooking(bookingDTO);
 		return new ResponseEntity<BookingDTO>(bookingDTO1, HttpStatus.CREATED);
+	}
+
+	@GetMapping("/test")
+	public String getMsg(){
+		return "Booking Service called";
 	}
 
 }
