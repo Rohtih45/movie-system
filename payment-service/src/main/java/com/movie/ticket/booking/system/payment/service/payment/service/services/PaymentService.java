@@ -4,5 +4,5 @@ import com.movie.ticket.booking.system.payment.service.payment.service.dtos.Book
 
 public interface PaymentService {
 
-    public BookingDTO makePayment(BookingDTO bookingDTO);
+    public void makePayment(BookingDTO bookingDTO);
 }

@@ -1,6 +1,7 @@
 package com.movie.ticket.handler;
 
 import com.movie.ticket.dto.ResponseDTO;
+import com.movie.ticket.exception.BookingException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.ObjectError;
@@ -51,6 +52,14 @@ public class BookingAPIHandler {
 				.statusCodeDescription(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
 				.errorDiscription(runtimeException.getMessage()).build(),
 				HttpStatus.INTERNAL_SERVER_ERROR);
+	}
+
+	@ExceptionHandler(BookingException.class)
+	public ResponseEntity<ResponseDTO> bookingException(BookingException bookingException){
+		return new ResponseEntity<ResponseDTO>(ResponseDTO.builder()
+				.statusCodeDescription(HttpStatus.OK.getReasonPhrase())
+				.errorDiscription(bookingException.getMessage()).build(),
+				HttpStatus.OK);
 	}
 
 

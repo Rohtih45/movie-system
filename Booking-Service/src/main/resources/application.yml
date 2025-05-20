@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 7070
 spring:
   application:
     name: Booking-Service
@@ -11,6 +11,22 @@ spring:
     show-sql: true
     hibernate:
       ddl-auto: update
+  kafka:
+    consumer:
+      key-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      properties:
+        spring.deserializer.key.delegate.class: org.apache.kafka.common.serialization.StringDeserializer
+        spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
+        spring.json.value.default.type: import com.movie.ticket.booking.system.payment.service.payment.service.dtos.BookingDTO;
+        spring.json.trusted.packages: "*"
+    producer:
+      bootstrap-servers:
+        - "localhost:9092"
+#        - "localhost:29092"
+#        - "localhost:39092"
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 eureka:
   client:
     service-url:

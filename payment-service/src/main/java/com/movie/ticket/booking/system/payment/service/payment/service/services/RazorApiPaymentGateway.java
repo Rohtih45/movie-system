@@ -29,6 +29,7 @@ public class RazorApiPaymentGateway {
     public BookingDTO razorpayClient(BookingDTO bookingDTO)  {
 
         try {
+
             RazorpayClient razorpayClient = new RazorpayClient(keyId, keySecret);
             JSONObject orderReq = new JSONObject();
             //Map<String, Object> chargeParam = new HashMap<>(); -- For Stripe Payment Gateway

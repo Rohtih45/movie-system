@@ -1,9 +1,13 @@
 package com.movie.ticket.services.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.movie.ticket.Repositories.BookingRepository;
 import com.movie.ticket.brokers.PaymentServiceBroker;
 import com.movie.ticket.entites.BookingEntity;
 import com.movie.ticket.enums.BookingStatus;
+import com.movie.ticket.exception.BookingException;
+import com.movie.ticket.kafka.publisher.BookingServiceKafkaPublisher;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -12,6 +16,10 @@ import org.springframework.stereotype.Service;
 
 import com.movie.ticket.dto.BookingDTO;
 import com.movie.ticket.services.BookingService;
+
+import java.util.Optional;
+import java.util.UUID;
+
 @Service
 @Slf4j
 public class BookingServiceImpl implements BookingService {
@@ -22,9 +30,15 @@ public class BookingServiceImpl implements BookingService {
 	@Autowired
 	private PaymentServiceBroker paymentServiceBroker;
 
+	@Autowired
+	private BookingServiceKafkaPublisher bookingServiceKafkaPublisher;
+
+	@Autowired
+	private ObjectMapper objectMapper;
+
 	@Override
 	@Transactional
-	public BookingDTO createBooking(BookingDTO bookingDTO) {
+	public BookingDTO createBooking(BookingDTO bookingDTO) throws JsonProcessingException {
 		log.info("Requested Booking details Entered: {}",bookingDTO);
 		// TODO Auto-generated method stub
 		BookingEntity bookingEntity =   BookingEntity.builder()
@@ -38,19 +52,41 @@ public class BookingServiceImpl implements BookingService {
 				.build();
 
 		bookingRepository.save(bookingEntity);
-		BookingDTO bookingDTO1 = new BookingDTO();
-		BeanUtils.copyProperties(bookingEntity, bookingDTO1);
-		log.info("Calliing payment gateway to do payment for amount {} with booking id {}"
-				,bookingDTO1.getBookingAmount(),bookingDTO1.getBookingId());
-		// Call Payment Service
-		BookingDTO bookingDTOResponse = paymentServiceBroker.makePayment(bookingDTO1);
-		//System.out.println(msg);
-		log.info("Payment successfull with booking id {}",bookingDTO1.getBookingId());
-		bookingEntity.setBookingStatus(bookingDTOResponse.getBookingStatus());
-		//bookingDTO1.setBookingStatus(bookingDTOResponse.getBookingStatus());
 
-		return bookingDTO1;
+		bookingDTO.setBookingId(bookingEntity.getBookingId());
+		bookingDTO.setBookingStatus(BookingStatus.PENDING);
 
+		bookingServiceKafkaPublisher.pushBookingDetailsToPaymentRequestTopics(bookingDTO);
+
+		return bookingDTO;
+
+	}
+
+	@Override
+	public BookingDTO getBookingDetails(UUID bookingId) throws  BookingException{
+		BookingEntity bookingEntity = bookingRepository.findById(bookingId).orElseThrow(()-> new BookingException("Booking Details not Found" + bookingId));
+
+
+		return BookingDTO.builder()
+				.bookingId(bookingEntity.getBookingId())
+				.bookingAmount(bookingEntity.getBookingAmount())
+				.bookingStatus(bookingEntity.getBookingStatus())
+				.userId(bookingEntity.getUserId())
+				.movieId(bookingEntity.getMovieId())
+				.showDate(bookingEntity.getShowDate())
+				.showTime(bookingEntity.getShowTime())
+				.seatsSelected(bookingEntity.getSeatsSelected())
+				.build();
+	}
+
+	@Override
+	@Transactional
+	public void processFinalBooknig(BookingDTO bookingDTO) throws BookingException {
+
+		BookingEntity bookingEntity = this.bookingRepository.findById(bookingDTO.getBookingId())
+				.orElseThrow(() -> new BookingException("No Booking deatils found with Id: "+ bookingDTO.getBookingId()));
+
+		bookingEntity.setBookingStatus(bookingDTO.getBookingStatus());
 	}
 
 }
